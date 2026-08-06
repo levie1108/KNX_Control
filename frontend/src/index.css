@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base Reset & Dark Theme ──────────────────────────────────── */
+
+:root {
+  --color-on: #22c55e;
+  --color-off: #ef4444;
+  --color-pending: #f59e0b;
+  --color-unknown: #6b7280;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3451 #0a0e1a;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #0a0e1a;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.03) 0%, transparent 50%);
+}
+
+/* ── Glassmorphism Utility ────────────────────────────────────── */
+
+@layer components {
+  .glass-card {
+    @apply bg-knx-card/70 backdrop-blur-xl border border-knx-border/50
+           rounded-2xl shadow-lg shadow-black/20;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300
+           hover:border-knx-accent/30 hover:shadow-knx-accent/5 hover:shadow-xl;
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-xl font-medium text-sm
+           bg-knx-accent text-white
+           hover:bg-blue-600 active:bg-blue-700
+           transition-all duration-200 ease-out
+           focus:outline-none focus:ring-2 focus:ring-knx-accent/50 focus:ring-offset-2 focus:ring-offset-knx-bg;
+  }
+
+  .btn-danger {
+    @apply px-5 py-2.5 rounded-xl font-medium text-sm
+           bg-red-600 text-white
+           hover:bg-red-700 active:bg-red-800
+           transition-all duration-200 ease-out
+           focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:ring-offset-knx-bg;
+  }
+
+  .btn-success {
+    @apply px-5 py-2.5 rounded-xl font-medium text-sm
+           bg-emerald-600 text-white
+           hover:bg-emerald-700 active:bg-emerald-800
+           transition-all duration-200 ease-out
+           focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2 focus:ring-offset-knx-bg;
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 rounded-xl font-medium text-sm
+           text-gray-400 hover:text-white hover:bg-white/5
+           transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 rounded-xl text-sm
+           bg-knx-bg border border-knx-border/60
+           text-gray-100 placeholder:text-gray-500
+           focus:outline-none focus:ring-2 focus:ring-knx-accent/40 focus:border-knx-accent/50
+           transition-all duration-200;
+  }
+
+  /* Status indicator dots */
+  .status-dot {
+    @apply w-2.5 h-2.5 rounded-full inline-block;
+  }
+
+  .status-dot-on {
+    @apply status-dot bg-green-400 animate-glow-on;
+  }
+
+  .status-dot-off {
+    @apply status-dot bg-red-500;
+  }
+
+  .status-dot-pending {
+    @apply status-dot bg-amber-400 animate-pulse;
+  }
+
+  .status-dot-unknown {
+    @apply status-dot bg-gray-500;
+  }
+}
+
+/* ── Toggle Switch ────────────────────────────────────────────── */
+
+.toggle-track {
+  @apply relative w-12 h-6 rounded-full cursor-pointer
+         transition-colors duration-300 ease-out;
+}
+
+.toggle-track[data-state="on"] {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
+}
+
+.toggle-track[data-state="off"] {
+  @apply bg-gray-700;
+}
+
+.toggle-track[data-state="pending"] {
+  @apply bg-amber-600/70;
+}
+
+.toggle-thumb {
+  @apply absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md
+         transition-transform duration-300 ease-out;
+}
+
+.toggle-track[data-state="on"] .toggle-thumb {
+  transform: translateX(26px);
+}
+
+.toggle-track[data-state="off"] .toggle-thumb,
+.toggle-track[data-state="pending"] .toggle-thumb {
+  transform: translateX(2px);
+}
+
+/* ── Modal Backdrop ───────────────────────────────────────────── */
+
+.modal-backdrop {
+  @apply fixed inset-0 z-50 flex items-center justify-center
+         bg-black/60 backdrop-blur-sm;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  @apply glass-card p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Grid Background Pattern ─────────────────────────────────── */
+
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(42, 52, 81, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42, 52, 81, 0.15) 1px, transparent 1px);
+  background-size: 48px 48px;
+}

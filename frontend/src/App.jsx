@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export default function App() {
-  const { gateways, loading, error, reload, addGateway, removeGateway } = useGateways();
+  const { gateways, statuses, loading, error, reload, addGateway, removeGateway } = useGateways();
   const [view, setView] = useState('overview');
   const [selectedGatewayId, setSelectedGatewayId] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -105,6 +105,7 @@ export default function App() {
         {view === 'overview' && (
           <GatewayOverview
             gateways={gateways}
+            statuses={statuses}
             loading={loading}
             selectedId={selectedGatewayId}
             onSelect={handleSelectGateway}

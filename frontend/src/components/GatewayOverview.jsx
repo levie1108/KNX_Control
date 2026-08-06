@@ -6,6 +6,7 @@ import GatewayCard from './GatewayCard';
  */
 export default function GatewayOverview({
   gateways,
+  statuses,
   loading,
   selectedId,
   onSelect,
@@ -62,6 +63,7 @@ export default function GatewayOverview({
               onSelect={onSelect}
               onDelete={onDelete}
               scheduleCount={scheduleCounts?.[gw.id] || 0}
+              status={statuses?.[gw.id] || 'pending'}
             />
           ))}
         </div>

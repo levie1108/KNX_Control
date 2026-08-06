@@ -120,3 +120,16 @@ async def read_status(
         return {"group_address": status_ga, "state": None, "error": msg}
     finally:
         await xknx.stop()
+
+
+async def ping_gateway(gateway_ip: str, gateway_port: int, timeout: float = 2.5) -> bool:
+    """Test if a KNX IP gateway is online and accepting tunneling connections."""
+    xknx = XKNX(connection_config=_build_connection_config(gateway_ip, gateway_port))
+    try:
+        await asyncio.wait_for(xknx.start(), timeout=timeout)
+        await xknx.stop()
+        return True
+    except Exception as exc:
+        logger.debug("Gateway %s:%d ping failed: %s", gateway_ip, gateway_port, exc)
+        return False
+

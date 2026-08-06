@@ -4,7 +4,14 @@ import StatusBadge from './StatusBadge';
 /**
  * GatewayCard — displays a single gateway's info with click-to-select.
  */
-export default function GatewayCard({ gateway, isSelected, onSelect, onDelete, scheduleCount = 0 }) {
+export default function GatewayCard({
+  gateway,
+  isSelected,
+  onSelect,
+  onDelete,
+  scheduleCount = 0,
+  status = 'unknown',
+}) {
   const relayCount = gateway.relay_addresses?.length || 0;
 
   return (
@@ -46,7 +53,7 @@ export default function GatewayCard({ gateway, isSelected, onSelect, onDelete, s
       {/* Footer */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <StatusBadge status="unknown" />
+          <StatusBadge status={status} />
           <span className="text-xs text-gray-500">
             {relayCount} relay{relayCount !== 1 ? 's' : ''}
           </span>

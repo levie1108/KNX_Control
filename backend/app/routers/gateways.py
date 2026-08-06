@@ -23,6 +23,22 @@ async def upsert_gateway(payload: GatewayCreate):
     return result
 
 
+@router.get("/status", response_model=dict[str, str])
+async def get_gateways_status():
+    """Probe online/offline status for all registered gateways concurrently."""
+    import asyncio
+    from app.services import knx_service
+
+    gateways = await db.get_all_gateways()
+
+    async def check_gw(gw: dict) -> tuple[str, str]:
+        online = await knx_service.ping_gateway(gw["ip"], gw["port"])
+        return gw["id"], "online" if online else "offline"
+
+    results = await asyncio.gather(*(check_gw(gw) for gw in gateways))
+    return dict(results)
+
+
 @router.get("/{gateway_id}", response_model=GatewayResponse)
 async def get_gateway(gateway_id: str):
     """Get a single gateway by ID."""

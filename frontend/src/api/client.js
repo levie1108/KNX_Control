@@ -26,6 +26,11 @@ export function fetchGateways() {
   return request('/gateways');
 }
 
+/** Check online/offline status for all gateways. */
+export function fetchGatewayStatuses() {
+  return request('/gateways/status');
+}
+
 /** Get a single gateway by ID. */
 export function fetchGateway(id) {
   return request(`/gateways/${encodeURIComponent(id)}`);

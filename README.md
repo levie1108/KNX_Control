@@ -50,6 +50,22 @@ To start the application anytime afterwards:
 
 ---
 
+## One-Click Updating
+
+To pull the latest code updates from GitHub and automatically update dependencies & rebuild:
+
+### Windows:
+```cmd
+update.bat
+```
+
+### Linux / macOS:
+```bash
+chmod +x update.sh && ./update.sh
+```
+
+---
+
 ## Manual Quick Start
 
 ### Backend

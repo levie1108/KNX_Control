@@ -10,7 +10,7 @@ import { fetchScheduleCounts } from './api/client';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Gateways', icon: Server },
-  { id: 'control', label: 'Relay Control', icon: Activity },
+  //{ id: 'control', label: 'Relay Control', icon: Activity },
   { id: 'schedules', label: 'Schedules', icon: Clock },
   { id: 'master', label: 'Master Actions', icon: Zap },
 ];

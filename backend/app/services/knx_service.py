@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import socket
 
 from xknx import XKNX
 from xknx.devices import BinarySensor, Switch
@@ -122,14 +123,49 @@ async def read_status(
         await xknx.stop()
 
 
-async def ping_gateway(gateway_ip: str, gateway_port: int, timeout: float = 2.5) -> bool:
-    """Test if a KNX IP gateway is online and accepting tunneling connections."""
-    xknx = XKNX(connection_config=_build_connection_config(gateway_ip, gateway_port))
+async def ping_gateway(gateway_ip: str, gateway_port: int, timeout: float = 2.0) -> bool:
+    """Test if a KNX IP gateway is online and accepting tunneling connections.
+
+    Uses a fast low-level UDP search request probe followed by an xknx connection check
+    with auto_reconnect=False.
+    """
+    # 1. Fast low-level UDP search request probe
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(timeout)
+        search_req = bytes([
+            0x06, 0x10, 0x02, 0x01, 0x00, 0x0e,
+            0x08, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ])
+        sock.sendto(search_req, (gateway_ip, gateway_port))
+        data, _ = sock.recvfrom(512)
+        sock.close()
+        if len(data) >= 6 and data[0] == 0x06 and data[1] == 0x10:
+            return True
+    except Exception:
+        pass
+
+    # 2. Strict xknx connection check without auto_reconnect
+    connection_config = ConnectionConfig(
+        connection_type=ConnectionType.TUNNELING,
+        gateway_ip=gateway_ip,
+        gateway_port=gateway_port,
+        auto_reconnect=False,
+    )
+    xknx = XKNX(connection_config=connection_config)
     try:
         await asyncio.wait_for(xknx.start(), timeout=timeout)
+        is_connected = (
+            xknx.knxip_interface is not None
+            and getattr(xknx.knxip_interface, "connected", False)
+        )
         await xknx.stop()
-        return True
+        return is_connected
     except Exception as exc:
         logger.debug("Gateway %s:%d ping failed: %s", gateway_ip, gateway_port, exc)
+        try:
+            await xknx.stop()
+        except Exception:
+            pass
         return False
 

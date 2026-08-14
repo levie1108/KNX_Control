@@ -169,12 +169,16 @@ class FlavorSwitchRequest(BaseModel):
 
 
 class FlavorSwitchResponse(BaseModel):
-    """Response after switching flavor."""
+    """Response after switching flavor with KNX bus command and PMJ API."""
 
     table: int
     id: str
     flavor: str
+    group_address: str | None = None
+    knx_success: bool = False
+    api_success: bool = False
     success: bool
     detail: str | None = None
+
 
 

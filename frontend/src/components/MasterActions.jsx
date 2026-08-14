@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Zap, ZapOff, AlertTriangle, Droplets, ChevronDown } from 'lucide-react';
 import { powerUpAll, shutdownAll, switchFlavor as switchFlavorApi } from '../api/client';
 
-/** Available flavors for the PMJ API. */
+/** Available flavors for the PMJ API and KNX Bus. */
 const FLAVORS = [
-  { id: 'aromatic',  label: 'Aromatic',   color: 'amber' },
-  { id: 'menthol',   label: 'Menthol',    color: 'cyan' },
-  { id: 'tobacco',   label: 'Tobacco',    color: 'orange' },
-  { id: 'newflavor', label: 'New Flavor', color: 'violet' },
+  { id: 'aromatic',  label: 'Aromatic',   ga: '3/0/3', color: 'amber' },
+  { id: 'menthol',   label: 'Menthol',    ga: '3/0/5', color: 'cyan' },
+  { id: 'tobacco',   label: 'Tobacco',    ga: '3/0/8', color: 'orange' },
+  { id: 'newflavor', label: 'New Flavor', ga: '3/0/9', color: 'violet' },
 ];
 
 const TABLES = [
@@ -60,7 +60,7 @@ export default function MasterActions({ gatewayCount }) {
     try {
       await switchFlavorApi(Number(table), playerId, flavor.id);
       setActiveFlavor(flavor.id);
-      setFlavorResult({ success: true, label: flavor.label, table, playerId });
+      setFlavorResult({ success: true, label: flavor.label, ga: flavor.ga, table, playerId });
     } catch (err) {
       setFlavorResult({ error: err.message });
     } finally {
@@ -208,6 +208,7 @@ export default function MasterActions({ gatewayCount }) {
               >
                 <Droplets size={24} className={`mx-auto mb-2 ${c.text} transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`} />
                 <h4 className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-gray-300'}`}>{flavor.label}</h4>
+                <p className="text-[10px] text-gray-500 mt-0.5 font-mono">KNX: {flavor.ga}</p>
                 {isActive && (
                   <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 )}
@@ -230,7 +231,7 @@ export default function MasterActions({ gatewayCount }) {
             ) : (
               <p>
                 Switched Table {flavorResult.table} / Player {flavorResult.playerId} to{' '}
-                <strong>{flavorResult.label}</strong> successfully.
+                <strong>{flavorResult.label}</strong> (KNX: {flavorResult.ga || 'Sent'} &amp; PMJ API OK).
               </p>
             )}
           </div>

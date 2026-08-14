@@ -1,28 +1,43 @@
 import { useState } from 'react';
 import { Zap, ZapOff, AlertTriangle, Droplets, ChevronDown } from 'lucide-react';
-import { powerUpAll, shutdownAll, sendCommand } from '../api/client';
+import { powerUpAll, shutdownAll, switchFlavor as switchFlavorApi } from '../api/client';
 
-/** Flavor group addresses — exclusive selection (one ON, rest OFF). */
+/** Available flavors for the PMJ API. */
 const FLAVORS = [
-  { id: 'aromatic', label: 'Aromatic', ga: '3/0/3', color: 'amber' },
-  { id: 'menthol',  label: 'Menthol',  ga: '3/0/5', color: 'cyan' },
-  { id: 'tobacco',  label: 'Tobacco',  ga: '3/0/8', color: 'orange' },
-  { id: 'newflavor', label: 'New Flavor', ga: '3/0/9', color: 'violet' },
+  { id: 'aromatic',  label: 'Aromatic',   color: 'amber' },
+  { id: 'menthol',   label: 'Menthol',    color: 'cyan' },
+  { id: 'tobacco',   label: 'Tobacco',    color: 'orange' },
+  { id: 'newflavor', label: 'New Flavor', color: 'violet' },
+];
+
+const TABLES = [
+  { value: 1, label: 'Table 1' },
+  { value: 2, label: 'Table 2' },
+  { value: 3, label: 'Table 3' },
+  { value: 4, label: 'Table 4 (Test)' },
+];
+
+const PLAYER_IDS = [
+  { value: 'A', label: 'Player A' },
+  { value: 'B', label: 'Player B' },
 ];
 
 /**
- * MasterActions — global power-up / shutdown + flavor switching.
+ * MasterActions — global power-up / shutdown + flavor switching via PMJ API.
  */
-export default function MasterActions({ gatewayCount, gateways = [] }) {
+export default function MasterActions({ gatewayCount }) {
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(null); // 'powerup' | 'shutdown' | null
   const [result, setResult] = useState(null);
 
   // ── Flavor state ──
-  const [flavorGwId, setFlavorGwId] = useState('');
+  const [table, setTable] = useState('');
+  const [playerId, setPlayerId] = useState('');
   const [activeFlavor, setActiveFlavor] = useState(null);
   const [flavorBusy, setFlavorBusy] = useState(false);
   const [flavorResult, setFlavorResult] = useState(null);
+
+  const canSwitch = table !== '' && playerId !== '';
 
   const execute = async (action) => {
     setBusy(true);
@@ -38,19 +53,14 @@ export default function MasterActions({ gatewayCount, gateways = [] }) {
     }
   };
 
-  const switchFlavor = async (flavor) => {
-    if (!flavorGwId) return;
+  const handleSwitchFlavor = async (flavor) => {
+    if (!canSwitch) return;
     setFlavorBusy(true);
     setFlavorResult(null);
     try {
-      // Turn OFF all other flavors, turn ON the selected one
-      const offAddresses = FLAVORS.filter((f) => f.id !== flavor.id).map((f) => f.ga);
-      if (offAddresses.length > 0) {
-        await sendCommand(flavorGwId, offAddresses, 'OFF');
-      }
-      await sendCommand(flavorGwId, [flavor.ga], 'ON');
+      await switchFlavorApi(Number(table), playerId, flavor.id);
       setActiveFlavor(flavor.id);
-      setFlavorResult({ success: true, label: flavor.label });
+      setFlavorResult({ success: true, label: flavor.label, table, playerId });
     } catch (err) {
       setFlavorResult({ error: err.message });
     } finally {
@@ -60,10 +70,10 @@ export default function MasterActions({ gatewayCount, gateways = [] }) {
 
   /** Tailwind color map for flavor buttons. */
   const colorMap = {
-    amber:  { ring: 'ring-amber-500/50',  bg: 'bg-amber-500/15',  border: 'border-amber-500/30',  hoverBorder: 'hover:border-amber-400/60',  text: 'text-amber-400',  activeBg: 'bg-amber-500/25',  activeBorder: 'border-amber-400',  shadow: 'shadow-amber-500/20' },
-    cyan:   { ring: 'ring-cyan-500/50',   bg: 'bg-cyan-500/15',   border: 'border-cyan-500/30',   hoverBorder: 'hover:border-cyan-400/60',   text: 'text-cyan-400',   activeBg: 'bg-cyan-500/25',   activeBorder: 'border-cyan-400',   shadow: 'shadow-cyan-500/20' },
-    orange: { ring: 'ring-orange-500/50', bg: 'bg-orange-500/15', border: 'border-orange-500/30', hoverBorder: 'hover:border-orange-400/60', text: 'text-orange-400', activeBg: 'bg-orange-500/25', activeBorder: 'border-orange-400', shadow: 'shadow-orange-500/20' },
-    violet: { ring: 'ring-violet-500/50', bg: 'bg-violet-500/15', border: 'border-violet-500/30', hoverBorder: 'hover:border-violet-400/60', text: 'text-violet-400', activeBg: 'bg-violet-500/25', activeBorder: 'border-violet-400', shadow: 'shadow-violet-500/20' },
+    amber:  { bg: 'bg-amber-500/15',  border: 'border-amber-500/30',  hoverBorder: 'hover:border-amber-400/60',  text: 'text-amber-400',  activeBg: 'bg-amber-500/25',  activeBorder: 'border-amber-400',  shadow: 'shadow-amber-500/20' },
+    cyan:   { bg: 'bg-cyan-500/15',   border: 'border-cyan-500/30',   hoverBorder: 'hover:border-cyan-400/60',   text: 'text-cyan-400',   activeBg: 'bg-cyan-500/25',   activeBorder: 'border-cyan-400',   shadow: 'shadow-cyan-500/20' },
+    orange: { bg: 'bg-orange-500/15', border: 'border-orange-500/30', hoverBorder: 'hover:border-orange-400/60', text: 'text-orange-400', activeBg: 'bg-orange-500/25', activeBorder: 'border-orange-400', shadow: 'shadow-orange-500/20' },
+    violet: { bg: 'bg-violet-500/15', border: 'border-violet-500/30', hoverBorder: 'hover:border-violet-400/60', text: 'text-violet-400', activeBg: 'bg-violet-500/25', activeBorder: 'border-violet-400', shadow: 'shadow-violet-500/20' },
   };
 
   return (
@@ -143,24 +153,42 @@ export default function MasterActions({ gatewayCount, gateways = [] }) {
           <h2 className="text-lg font-semibold text-white">Flavor Switch</h2>
         </div>
         <p className="text-sm text-gray-400 mb-5">
-          Select a gateway and switch to a flavor. The active flavor turns ON while all others turn OFF.
+          Select a table and player, then choose a flavor to switch to.
         </p>
 
-        {/* Gateway selector */}
-        <div className="mb-5">
-          <label className="block text-xs font-medium text-gray-400 mb-1.5">Target Gateway</label>
-          <div className="relative">
-            <select
-              value={flavorGwId}
-              onChange={(e) => { setFlavorGwId(e.target.value); setActiveFlavor(null); setFlavorResult(null); }}
-              className="input-field appearance-none pr-10 cursor-pointer"
-            >
-              <option value="">— Select a gateway —</option>
-              {gateways.map((gw) => (
-                <option key={gw.id} value={gw.id}>{gw.name} ({gw.ip})</option>
-              ))}
-            </select>
-            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+        {/* Table & Player ID selectors */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1.5">Table</label>
+            <div className="relative">
+              <select
+                value={table}
+                onChange={(e) => { setTable(e.target.value); setActiveFlavor(null); setFlavorResult(null); }}
+                className="input-field appearance-none pr-10 cursor-pointer"
+              >
+                <option value="">— Select table —</option>
+                {TABLES.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1.5">Player ID</label>
+            <div className="relative">
+              <select
+                value={playerId}
+                onChange={(e) => { setPlayerId(e.target.value); setActiveFlavor(null); setFlavorResult(null); }}
+                className="input-field appearance-none pr-10 cursor-pointer"
+              >
+                <option value="">— Select player —</option>
+                {PLAYER_IDS.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+            </div>
           </div>
         </div>
 
@@ -172,15 +200,14 @@ export default function MasterActions({ gatewayCount, gateways = [] }) {
             return (
               <button
                 key={flavor.id}
-                onClick={() => switchFlavor(flavor)}
-                disabled={flavorBusy || !flavorGwId}
+                onClick={() => handleSwitchFlavor(flavor)}
+                disabled={flavorBusy || !canSwitch}
                 className={`relative group rounded-2xl p-4 text-center transition-all duration-300
                   border ${isActive ? `${c.activeBg} ${c.activeBorder} shadow-lg ${c.shadow}` : `${c.bg} ${c.border} ${c.hoverBorder}`}
                   disabled:opacity-40 disabled:cursor-not-allowed`}
               >
                 <Droplets size={24} className={`mx-auto mb-2 ${c.text} transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`} />
                 <h4 className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-gray-300'}`}>{flavor.label}</h4>
-                <p className="text-[10px] text-gray-500 mt-0.5 font-mono">{flavor.ga}</p>
                 {isActive && (
                   <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 )}
@@ -201,7 +228,10 @@ export default function MasterActions({ gatewayCount, gateways = [] }) {
             {flavorResult.error ? (
               <p>Error: {flavorResult.error}</p>
             ) : (
-              <p>Switched to <strong>{flavorResult.label}</strong> successfully.</p>
+              <p>
+                Switched Table {flavorResult.table} / Player {flavorResult.playerId} to{' '}
+                <strong>{flavorResult.label}</strong> successfully.
+              </p>
             )}
           </div>
         )}

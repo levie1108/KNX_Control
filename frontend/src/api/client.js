@@ -124,3 +124,13 @@ export function fetchScheduleCounts() {
   return request('/schedules/counts');
 }
 
+// ── Flavors ────────────────────────────────────────────────────
+
+/** Switch flavor via the PMJ API proxy. */
+export function switchFlavor(table, id, flavor) {
+  return request('/flavors/switch', {
+    method: 'POST',
+    body: JSON.stringify({ table, id, flavor }),
+  });
+}
+

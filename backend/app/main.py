@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import gateways, knx, routines, schedules
+from app.routers import gateways, knx, routines, schedules, flavors
 from app.services import scheduler
 
 logging.basicConfig(
@@ -55,6 +55,7 @@ app.include_router(gateways.router)
 app.include_router(knx.router)
 app.include_router(routines.router)
 app.include_router(schedules.router)
+app.include_router(flavors.router)
 
 
 @app.get("/", tags=["Health"])

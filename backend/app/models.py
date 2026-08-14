@@ -153,3 +153,28 @@ class ScheduleResponse(BaseModel):
     enabled: bool
     created_at: str
 
+
+# ── Flavor Switch ─────────────────────────────────────────────────
+
+
+class FlavorSwitchRequest(BaseModel):
+    """Payload to switch flavor via PMJ API."""
+
+    table: int = Field(..., ge=1, le=4, description="Table number (1–4)")
+    id: str = Field(..., pattern=r"^[AB]$", description="Player ID (A or B)")
+    flavor: str = Field(
+        ...,
+        description="Flavor name: aromatic, menthol, tobacco, or newflavor",
+    )
+
+
+class FlavorSwitchResponse(BaseModel):
+    """Response after switching flavor."""
+
+    table: int
+    id: str
+    flavor: str
+    success: bool
+    detail: str | None = None
+
+

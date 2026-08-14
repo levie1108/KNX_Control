@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     DEFAULT_KNX_PORT: int = 3671
     DB_PATH: str = "knx_registry.db"
 
+    # PMJ Flavor API
+    PMJ_BASE_URL: str = ""
+    PMJ_API_KEY: str = ""
+
     model_config = {"env_file": Path(__file__).resolve().parent.parent / ".env"}
 
 

@@ -27,11 +27,16 @@ async def switch_flavor(payload: FlavorSwitchRequest):
             detail="PMJ API not configured (check PMJ_BASE_URL / PMJ_API_KEY in .env)",
         )
 
+    base_url = settings.PMJ_BASE_URL.strip().rstrip("/")
+    if not base_url.startswith(("http://", "https://")):
+        base_url = f"https://{base_url}"
+
     url = (
-        f"{settings.PMJ_BASE_URL.rstrip('/')}"
+        f"{base_url}"
         f"/player/{payload.table}/{payload.id}"
         f"/set_flavor/{payload.flavor}.json"
     )
+
 
     try:
         resp = await _client.post(

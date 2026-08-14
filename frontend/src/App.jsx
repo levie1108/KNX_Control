@@ -173,7 +173,7 @@ export default function App() {
         )}
 
         {view === 'master' && (
-          <MasterActions gatewayCount={gateways.length} />
+          <MasterActions gatewayCount={gateways.length} gateways={gateways} />
         )}
       </main>
 
